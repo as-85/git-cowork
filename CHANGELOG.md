@@ -20,7 +20,9 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
   View › Show/Hide Workspace (⌃⌘P).
 - The workspace tree shows, next to each repository and worktree, its
   uncommitted changes and commits to push (↑) and pull (↓), like the
-  worktrees in the sidebar.
+  worktrees in the sidebar. A repository's ↑ counts the commits to push on
+  all its local branches, not just the checked-out one; its tooltip lists
+  them by branch.
 
 ### Changed
 - The sidebar, the inspector and the workspace tree keep the widths you drag

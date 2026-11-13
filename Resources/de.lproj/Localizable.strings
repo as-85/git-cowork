@@ -45,6 +45,8 @@
 "%lld commits to pull" = "%lld Commits zu pullen";
 "1 commit to push" = "1 Commit zu pushen";
 "1 commit to pull" = "1 Commit zu pullen";
+"%@: 1 commit to push" = "%@: 1 Commit zu pushen";
+"%@: %lld commits to push" = "%1$@: %2$lld Commits zu pushen";
 "%lldd ago" = "vor %lld T.";
 "%lldh ago" = "vor %lld Std.";
 "%lldm ago" = "vor %lld Min.";

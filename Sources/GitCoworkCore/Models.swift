@@ -191,6 +191,25 @@ public struct WorktreeInfo: Hashable, Sendable {
     }
 }
 
+/// A local branch with commits its upstream doesn't have yet.
+public struct UnpushedBranch: Hashable, Sendable {
+    public var name: String
+    public var ahead: Int
+
+    public init(name: String, ahead: Int) {
+        self.name = name
+        self.ahead = ahead
+    }
+
+    /// The local branches in `refs` that have an upstream and are ahead of it,
+    /// by name. Branches without an upstream, or whose upstream is gone, don't count.
+    public static func find(in refs: [Ref]) -> [UnpushedBranch] {
+        refs.filter { $0.kind == .localBranch && $0.upstream != nil && !$0.upstreamGone && $0.ahead > 0 }
+            .map { UnpushedBranch(name: $0.name, ahead: $0.ahead) }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+}
+
 public struct Stash: Identifiable, Hashable, Sendable {
     public var id: String { selector }
     public let sha: String

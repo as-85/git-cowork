@@ -86,29 +86,44 @@ enum WorkspaceDisk {
 
     /// Uncommitted changes and commits ahead/behind of each folder, from
     /// `git status` (no network: ahead/behind is as of the last fetch).
-    /// A few at a time, so a large workspace doesn't start dozens of gits at once.
     static func status(of paths: [String]) async -> [String: WorktreeInfo] {
+        await eachGit(paths, ["status", "--porcelain=v2", "-z", "--branch"]) { WorktreeInfo(Parsers.parseStatus($0)) }
+    }
+
+    /// Each repository's local branches with commits to push, from
+    /// `git for-each-ref` (no network: as of the last fetch).
+    static func unpushed(of repos: [String]) async -> [String: [UnpushedBranch]] {
+        await eachGit(repos, ["for-each-ref", Parsers.refFormat, "refs/heads"]) {
+            UnpushedBranch.find(in: Parsers.parseRefs($0).refs)
+        }
+    }
+
+    /// Runs one read-only git in each folder and parses its output; folders
+    /// where git fails are left out. A few at a time, so a large workspace
+    /// doesn't start dozens of gits at once.
+    private static func eachGit<T: Sendable>(_ paths: [String], _ args: [String],
+                                             parse: @escaping @Sendable (String) -> T) async -> [String: T] {
         let git = GitRunner.shared
-        return await withTaskGroup(of: (String, WorktreeInfo?).self) { group in
+        return await withTaskGroup(of: (String, T?).self) { group in
             var pending = paths[...]
             func next() {
                 guard let path = pending.popFirst() else { return }
                 group.addTask {
-                    let out = await git.tryRun(["status", "--porcelain=v2", "-z", "--branch"], in: URL(fileURLWithPath: path))
-                    return (path, out.map { WorktreeInfo(Parsers.parseStatus($0)) })
+                    let out = await git.tryRun(args, in: URL(fileURLWithPath: path))
+                    return (path, out.map(parse))
                 }
             }
-            for _ in 0..<statusParallel { next() }
-            var result: [String: WorktreeInfo] = [:]
-            for await (path, info) in group {
-                if let info { result[path] = info }
+            for _ in 0..<parallelGits { next() }
+            var result: [String: T] = [:]
+            for await (path, value) in group {
+                if let value { result[path] = value }
                 next()
             }
             return result
         }
     }
 
-    private static let statusParallel = 6
+    private static let parallelGits = 6
 
     static func exists(_ path: String) -> Bool {
         var isDir: ObjCBool = false

@@ -373,6 +373,13 @@ final class LiveRepos {
         if let own = loaded.first(where: { $0.root.path == path }), let info = own.worktreeInfo[path] { return info }
         return loaded.lazy.compactMap { $0.worktreeInfo[path] }.first
     }
+
+    /// The local branches of the repository at `repo` with commits to push,
+    /// from a loaded model of it or of one of its worktrees (they share branches).
+    func unpushed(_ repo: String) -> [UnpushedBranch]? {
+        models.first { $0.isLoaded && ($0.root.path == repo || $0.mainWorktreePath == repo) }
+            .map { UnpushedBranch.find(in: $0.localBranches) }
+    }
 }
 
 /// Creates the model for a worktree and keeps it for the window's lifetime.

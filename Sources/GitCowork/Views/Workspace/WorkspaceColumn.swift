@@ -17,6 +17,8 @@ struct WorkspaceColumn: View {
     /// Changes and commits to push of repositories and worktrees no tab
     /// shows, as of the last reload. Open ones come live from LiveRepos.
     @State private var status: [String: WorktreeInfo] = [:]
+    /// Each repository's branches with commits to push, the same way.
+    @State private var unpushed: [String: [UnpushedBranch]] = [:]
     /// Nodes whose open/closed state differs from the default (folders open, repositories closed).
     @State private var toggled: Set<String> = []
     @State private var selection: String?
@@ -106,8 +108,19 @@ struct WorkspaceColumn: View {
         for path in checkouts {
             if let info = LiveRepos.shared.info(path) { known[path] = info } else { toRead.append(path) }
         }
-        let read = await WorkspaceDisk.status(of: toRead)
+        // Branches belong to the repository, so they are read once per repository.
+        let present = repos.filter { !missing.contains($0) }
+        var knownBranches = unpushed.filter { present.contains($0.key) }
+        var reposToRead: [String] = []
+        for repo in present {
+            if let live = LiveRepos.shared.unpushed(repo) { knownBranches[repo] = live } else { reposToRead.append(repo) }
+        }
+        let (paths, reposPaths) = (toRead, reposToRead)
+        async let readStatus = WorkspaceDisk.status(of: paths)
+        async let readBranches = WorkspaceDisk.unpushed(of: reposPaths)
+        let (read, branches) = await (readStatus, readBranches)
         status = known.merging(read) { _, new in new }
+        unpushed = knownBranches.merging(branches) { _, new in new }
     }
 
     // MARK: Open and closed
@@ -158,8 +171,13 @@ struct WorkspaceColumn: View {
                 .truncationMode(.middle)
                 .foregroundStyle(gone ? .tertiary : .primary)
             Spacer(minLength: 0)
-            if node.kind != .folder, !gone, let info = LiveRepos.shared.info(node.id) ?? status[node.id] {
-                WorktreeBadges(info: info)
+            if node.kind != .folder, !gone {
+                let info = LiveRepos.shared.info(node.id) ?? status[node.id]
+                // A repository's ↑ counts every branch with commits to push, not just the one checked out.
+                let branches = node.kind == .repo ? LiveRepos.shared.unpushed(node.id) ?? unpushed[node.id] : nil
+                if info != nil || branches != nil {
+                    WorktreeBadges(info: info ?? WorktreeInfo(), unpushed: branches)
+                }
             }
         }
         .modifier(CurrentBand(active: isCurrent))

@@ -260,21 +260,32 @@ struct WorktreeInfoBadges: View {
 }
 
 /// Uncommitted changes and "↑2 ↓1". Shows nothing when clean and in sync.
+/// With `unpushed` (a repository in the workspace tree), ↑ is the sum over
+/// those branches and the tooltip names each one.
 struct WorktreeBadges: View {
     let info: WorktreeInfo
+    var unpushed: [UnpushedBranch]?
+
+    private var ahead: Int { unpushed.map { $0.reduce(0) { $0 + $1.ahead } } ?? info.ahead }
 
     var body: some View {
         if info.changes > 0 {
             CountBadge(count: info.changes, style: .warning).help("\(info.changes) uncommitted changes")
         }
-        if info.ahead > 0 || info.behind > 0 {
-            AheadBehind(ahead: info.ahead, behind: info.behind).help(aheadBehindHelp)
+        if ahead > 0 || info.behind > 0 {
+            AheadBehind(ahead: ahead, behind: info.behind).help(aheadBehindHelp)
         }
     }
 
     private var aheadBehindHelp: String {
         var lines: [String] = []
-        if info.ahead > 0 { lines.append(info.ahead == 1 ? L("1 commit to push") : String(localized: "\(info.ahead) commits to push")) }
+        if let unpushed {
+            lines += unpushed.map { b in
+                b.ahead == 1 ? String(localized: "\(b.name): 1 commit to push") : String(localized: "\(b.name): \(b.ahead) commits to push")
+            }
+        } else if info.ahead > 0 {
+            lines.append(info.ahead == 1 ? L("1 commit to push") : String(localized: "\(info.ahead) commits to push"))
+        }
         if info.behind > 0 { lines.append(info.behind == 1 ? L("1 commit to pull") : String(localized: "\(info.behind) commits to pull")) }
         return lines.joined(separator: "\n")
     }

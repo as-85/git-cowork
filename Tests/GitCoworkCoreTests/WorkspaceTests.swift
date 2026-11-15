@@ -3,6 +3,19 @@ import Testing
 @testable import GitCoworkCore
 
 @Suite struct WorkspaceTests {
+    /// Only branches with an upstream they are ahead of; no upstream or a gone one doesn't count.
+    @Test func unpushedBranches() {
+        let refs = [
+            Ref(fullName: "refs/heads/main", name: "main", kind: .localBranch, target: "a", upstream: "origin/main", ahead: 2, isHead: true),
+            Ref(fullName: "refs/heads/feature/x", name: "feature/x", kind: .localBranch, target: "b", upstream: "origin/feature/x", ahead: 3, behind: 1),
+            Ref(fullName: "refs/heads/synced", name: "synced", kind: .localBranch, target: "c", upstream: "origin/synced", behind: 4),
+            Ref(fullName: "refs/heads/local", name: "local", kind: .localBranch, target: "d"),
+            Ref(fullName: "refs/heads/old", name: "old", kind: .localBranch, target: "e", upstream: "origin/old", upstreamGone: true),
+            Ref(fullName: "refs/remotes/origin/main", name: "origin/main", kind: .remoteBranch, target: "f"),
+        ]
+        #expect(UnpushedBranch.find(in: refs) == [UnpushedBranch(name: "feature/x", ahead: 3), UnpushedBranch(name: "main", ahead: 2)])
+    }
+
     /// The tree's badges: files not committed (each once) and commits to push and pull.
     @Test func worktreeInfoFromStatus() {
         let out = ["# branch.oid abc", "# branch.head main", "# branch.upstream origin/main", "# branch.ab +2 -1",

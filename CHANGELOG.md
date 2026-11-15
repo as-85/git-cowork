@@ -7,6 +7,16 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 ## [Unreleased]
 
 ### Added
+- Right-clicking a branch badge in the history offers "Delete <branch>…", as
+  the sidebar does. It always asks first, and for a local branch it offers to
+  delete the remote branch as well.
+- In the workspace tree, a repository's ↑ counts the commits to push on all
+  its local branches, not just the checked-out one; its tooltip lists them
+  by branch. Branches without an upstream don't count.
+
+## [0.6.0] - 2026-11-13
+
+### Added
 - Workspaces: keep a set of repositories together and see them as a tree
   (folders › repositories › worktrees) on the left of a tab. Clicking a
   repository or worktree shows it in that same tab, so one tab can hold a
@@ -20,21 +30,47 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
   View › Show/Hide Workspace (⌃⌘P).
 - The workspace tree shows, next to each repository and worktree, its
   uncommitted changes and commits to push (↑) and pull (↓), like the
-  worktrees in the sidebar. A repository's ↑ counts the commits to push on
-  all its local branches, not just the checked-out one; its tooltip lists
-  them by branch.
+  worktrees in the sidebar.
+- Pull a branch from its menu in the graph, also one that isn't checked out:
+  right-click its badge (or the remote branch's badge further up) and choose
+  "Pull <branch>". The branch moves up to its remote branch without a
+  checkout, so your working copy isn't touched. When both have new commits it
+  offers to check the branch out, where you pick merge or rebase. The same
+  "Pull" is in the sidebar's branch menu.
 
 ### Changed
 - The sidebar, the inspector and the workspace tree keep the widths you drag
   them to: in every tab, at the next launch, and when a workspace tab shows
   another repository.
+- A window showing a repository is at least as wide as its panels need
+  together, so the commit list in the middle always keeps its room. In a
+  narrow window a workspace's tree gives way first.
 - The reset entry in a commit's menu reads like GitKraken's: "Reset <branch>
   to this commit", with Soft (keep all changes), Mixed (keep working copy but
   reset index) and Hard (discard all changes).
+- Much less work while files keep changing. Files git ignores (build output,
+  dependencies, logs) no longer make the app read the repository: a build used
+  to start git several times a second for as long as it ran, now it starts it
+  once. While an agent or a script keeps editing tracked files, changes show
+  about once a second instead of after every write, and less often when the
+  app or the tab is in the background. A single save still shows right away.
+- The history no longer reloads all its rows each time the number of changed
+  files changes, only the "// WIP" row is redrawn. A branch list you were
+  hovering over stays open while files change.
 
 ### Fixed
 - The count on Pull, Push and the inbox bell showed "…" from 10 on. It now
   shows "9+"; the exact number is in the tooltip.
+- A window on a worktree that lives inside the main repository's folder (such
+  as `.claude/worktrees/…`) didn't notice changes to its own files until you
+  switched back to the app.
+- The app's background `git status` could make a commit or `git add` running
+  at the same moment (in a terminal, by an agent) fail with "Unable to create
+  index.lock". It no longer takes that lock.
+- A push the server declined for another reason than branch protection (a
+  GitLab push rule such as signed commits, a GitHub ruleset, a pre-receive
+  hook) was reported as "<branch> is protected on the server". It now says
+  the server refused the push and shows the server's own reason.
 
 ## [0.5.4] - 2026-11-12
 

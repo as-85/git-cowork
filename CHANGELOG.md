@@ -6,6 +6,9 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 
 ## [Unreleased]
 
+### Changed
+- New app icon.
+
 ## [0.6.1] - 2026-11-15
 
 ### Added

@@ -6,6 +6,8 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-11-16
+
 ### Fixed
 - Closing the window with the red button no longer forgets its tabs. The
   button closes all tabs at once, and each closed tab was removed from the

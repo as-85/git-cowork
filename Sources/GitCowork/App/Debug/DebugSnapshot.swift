@@ -11,8 +11,9 @@ import SwiftUI
 enum DebugSnapshot {
     /// GITCOWORK_DEBUG_SELECT = "commit:<n>" (nth commit) | "diff" (first changed file) | "commitdiff:<n>"
     ///   | "stash:<n>" (nth stash) | "stashdiff:<n>" (and its last file's diff)
+    ///   | "worktree:<n>" (nth other worktree's changes) | "worktreediff:<n>" (and its first file's diff)
     /// GITCOWORK_DEBUG_FILTER = text for the history's search field, e.g. "file:Login".
-    /// GITCOWORK_DEBUG_SHEET = "addRemote" | "editRemote".
+    /// GITCOWORK_DEBUG_SHEET = "addRemote" | "editRemote" | "release".
     /// GITCOWORK_DEBUG_MODE = "board" | "reviews", optionally ":<n>" to select the nth task / review.
     /// GITCOWORK_DEBUG_LOG = "1" opens the command log.
     @MainActor
@@ -34,10 +35,12 @@ enum DebugSnapshot {
         if ProcessInfo.processInfo.environment["GITCOWORK_DEBUG_PUSH"] != nil { await model.push() }
         // GITCOWORK_DEBUG_FILTER = "file:Login": what to put in the history's search field.
         if let filter = ProcessInfo.processInfo.environment["GITCOWORK_DEBUG_FILTER"] { model.filterText = filter }
-        // GITCOWORK_DEBUG_SHEET = "addRemote" | "editRemote" (the first remote): open that sheet.
+        // GITCOWORK_DEBUG_SHEET = "addRemote" | "editRemote" (the first remote) | "release": open that sheet.
         switch ProcessInfo.processInfo.environment["GITCOWORK_DEBUG_SHEET"] {
         case "addRemote": model.sheet = .addRemote(thenPush: nil)
         case "editRemote": if let remote = model.remotes.first { model.sheet = .editRemote(remote.name) }
+        // Create Release with a new tag at HEAD.
+        case "release": if let sha = model.headSHA { model.sheet = .createRelease(tag: nil, sha: sha) }
         default: break
         }
         guard let sel = ProcessInfo.processInfo.environment["GITCOWORK_DEBUG_SELECT"] else { return }
@@ -59,6 +62,16 @@ enum DebugSnapshot {
             model.selection = .stash(stash.sha)
             if parts.first == "stashdiff", let c = await model.stashContents(stash), let f = c.files.last {
                 model.openDiff = .commit(c.source(of: f), f)
+            }
+        case "worktree", "worktreediff":
+            let others = model.worktrees.filter { $0.path != model.root.path && !$0.isBare }
+            guard n < others.count else { return }
+            let path = others[n].path
+            model.selection = .worktree(path)
+            guard parts.first == "worktreediff" else { return }
+            await model.loadWorktreeChanges(path)
+            if let st = model.worktreeChanges[path], let f = (st.unstaged + st.untracked + st.staged).first {
+                model.openDiff = .worktree(path, f)
             }
         default: break
         }

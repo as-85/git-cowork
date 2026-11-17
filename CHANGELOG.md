@@ -7,12 +7,104 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 ## [Unreleased]
 
 ### Added
+- Another worktree's "// WIP" row in the history can now be clicked: the
+  right panel lists its uncommitted files (click one for the diff) with
+  "Open Worktree in New Tab" and "Open Here". Read-only, since staging and
+  committing happen in the worktree's own tab. Double-clicking the row
+  switches to that worktree.
+
+## [0.8.0] - 2026-11-17
+
+### Added
+- Tasks shared between repositories, e.g. a frontend and a backend. A
+  task's new "Repos" row adds another repository on this Mac: the task is
+  then also stored in that repository's tasks and shows on its board, with
+  "⧉ 2" on the card. Each board still shows only its own repository's
+  tasks. Edits, comments and deleting are carried over to every copy by
+  whoever has the repositories open (or among their recent ones): the newest
+  edit wins, comments are merged, and an edit after a delete brings the task
+  back. Removing a repository takes the task off its board.
+- "Start Task" on a shared task asks where: tick the repositories to make
+  the same branch in, optionally each in its own worktree. A repository
+  that isn't loaded here gets the branch without switching its checkout.
+
+## [0.7.1] - 2026-11-17
+
+### Fixed
+- Tasks, reviews and comments keep header fields this version doesn't
+  know when you edit them. A later version can add fields (for example the
+  repositories a task belongs to), and teammates still on this version
+  won't remove them by editing a task.
+
+## [0.7.0] - 2026-11-17
+
+### Added
+- Create a release on GitHub, GitLab or Gitea/Forgejo: right-click a tag
+  in the sidebar ("Create Release…"), a commit with a tag in the history
+  ("Create Release for <tag>…"), or a commit without one ("Create Release
+  Here…", which makes the tag too). Title and notes are filled in from the
+  tag and the commits since the previous tag; on GitHub and Gitea it can be
+  a draft or a pre-release. The tag is pushed first if it isn't on the
+  server, then the release's page opens. Not signed in, the menu opens the
+  host's own page for a new release instead.
+- Right-clicking a branch badge in the history offers "Copy Branch Name", as
+  the sidebar does. For a branch only on the server it copies the name
+  without the remote (`feature`, not `origin/feature`).
+- New in the history's right-click menu:
+  - "Remove Worktree and Delete <branch>…" for a branch checked out in
+    another worktree: asks once, says what is lost, and deletes the branch
+    only once the folder is gone.
+  - "Rename <branch>…" and "Set Upstream to origin/<branch>" (for a branch
+    without upstream when the remote has one of that name).
+  - "Copy Link to Commit", "Copy Link to Branch" and "Copy Link to Pull
+    Request #n".
+
+### Changed
+- Installed with Homebrew, the update notice now shows (and copies)
+  `brew install --cask michael-smao/tap/git-cowork` instead of
+  `brew upgrade --cask git-cowork`, which didn't always find the new
+  version.
+- The right-click menu in the history has fixed sections, always in the
+  same order: the branch (checkout, worktree, pull, push), merging and
+  rebasing, pull requests and reviews, new things from the commit, changing
+  history, copying, and last whatever removes something. A commit with
+  several branches shows one submenu per branch, with the same sections.
+- The sidebar's menus for branches and worktrees use the same order. A
+  branch or worktree there also offers "Remove Worktree and Delete
+  <branch>…".
+
+### Fixed
+- A branch checked out in another worktree no longer offers "Checkout" in
+  the history's menu; git refuses that. Its worktree can be opened instead.
+
+## [0.6.3] - 2026-11-16
+
+### Fixed
+- Closing the window with the red button no longer forgets its tabs. The
+  button closes all tabs at once, and each closed tab was removed from the
+  saved session, so the next window and the next launch came up empty. Now
+  the last window's tabs stay saved, as when quitting: clicking the Dock
+  icon (or File › New Window) shows them again, in the same order. Closing a
+  single tab while others stay open still forgets that tab.
+- Clicking the Dock icon with every window closed opens a window again.
+
+## [0.6.2] - 2026-11-15
+
+### Changed
+- New app icon.
+
+## [0.6.1] - 2026-11-15
+
+### Added
 - Right-clicking a branch badge in the history offers "Delete <branch>…", as
   the sidebar does. It always asks first, and for a local branch it offers to
   delete the remote branch as well.
 - In the workspace tree, a repository's ↑ counts the commits to push on all
   its local branches, not just the checked-out one; its tooltip lists them
   by branch. Branches without an upstream don't count.
+
+### Changed
+- New app icon.
 
 ## [0.6.0] - 2026-11-13
 

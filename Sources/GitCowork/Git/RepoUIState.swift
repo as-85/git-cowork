@@ -9,6 +9,9 @@ enum HistorySelection: Hashable {
     /// A stash picked in the sidebar, by its commit (selectors like
     /// stash@{0} move whenever a stash is added or removed).
     case stash(String)
+    /// Another worktree's uncommitted changes (its "// WIP" row), by its
+    /// path. Read-only here: staging and committing happen in its own tab.
+    case worktree(String)
 }
 
 /// Commits found by the search field's `file:` / `change:` terms (RepoModel.searchHistory).
@@ -65,10 +68,12 @@ struct GitProblem: Identifiable {
 enum DiffTarget: Hashable {
     case working(FileChange)
     case commit(CommitDetail, FileChange)
+    /// An uncommitted file in another worktree (by its path), read-only.
+    case worktree(String, FileChange)
 
     var file: FileChange {
         switch self {
-        case .working(let f), .commit(_, let f): f
+        case .working(let f), .commit(_, let f), .worktree(_, let f): f
         }
     }
 }
@@ -109,6 +114,10 @@ enum SheetKind: Identifiable {
     case newTask(status: TaskStatus)
     case requestReview(branch: String)
     case createPull(branch: String)
+    /// Start a task shared with other repositories: pick where.
+    case startTask(String, worktree: Bool)
+    /// A release for `tag`, or for a new tag at `sha` when `tag` is nil.
+    case createRelease(tag: String?, sha: String)
     case team
     /// Push a branch that has no upstream yet: pick the remote and the name there.
     case pushTarget(branch: String)
@@ -129,6 +138,8 @@ enum SheetKind: Identifiable {
         case .newTask(let s): "task:\(s.rawValue)"
         case .requestReview(let b): "review:\(b)"
         case .createPull(let b): "pull:\(b)"
+        case .startTask(let id, let w): "start:\(id):\(w)"
+        case .createRelease(let t, let s): "release:\(t ?? ""):\(s)"
         case .team: "team"
         case .pushTarget(let b): "pushTarget:\(b)"
         case .addRemote(let b): "addRemote:\(b ?? "")"

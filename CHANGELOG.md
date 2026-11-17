@@ -6,6 +6,8 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-17
+
 ### Added
 - Tasks shared between repositories, e.g. a frontend and a backend. A
   task's new "Repos" row adds another repository on this Mac: the task is

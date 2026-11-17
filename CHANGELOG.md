@@ -6,6 +6,47 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-17
+
+### Added
+- Create a release on GitHub, GitLab or Gitea/Forgejo: right-click a tag
+  in the sidebar ("Create Release…"), a commit with a tag in the history
+  ("Create Release for <tag>…"), or a commit without one ("Create Release
+  Here…", which makes the tag too). Title and notes are filled in from the
+  tag and the commits since the previous tag; on GitHub and Gitea it can be
+  a draft or a pre-release. The tag is pushed first if it isn't on the
+  server, then the release's page opens. Not signed in, the menu opens the
+  host's own page for a new release instead.
+- Right-clicking a branch badge in the history offers "Copy Branch Name", as
+  the sidebar does. For a branch only on the server it copies the name
+  without the remote (`feature`, not `origin/feature`).
+- New in the history's right-click menu:
+  - "Remove Worktree and Delete <branch>…" for a branch checked out in
+    another worktree: asks once, says what is lost, and deletes the branch
+    only once the folder is gone.
+  - "Rename <branch>…" and "Set Upstream to origin/<branch>" (for a branch
+    without upstream when the remote has one of that name).
+  - "Copy Link to Commit", "Copy Link to Branch" and "Copy Link to Pull
+    Request #n".
+
+### Changed
+- Installed with Homebrew, the update notice now shows (and copies)
+  `brew install --cask michael-smao/tap/git-cowork` instead of
+  `brew upgrade --cask git-cowork`, which didn't always find the new
+  version.
+- The right-click menu in the history has fixed sections, always in the
+  same order: the branch (checkout, worktree, pull, push), merging and
+  rebasing, pull requests and reviews, new things from the commit, changing
+  history, copying, and last whatever removes something. A commit with
+  several branches shows one submenu per branch, with the same sections.
+- The sidebar's menus for branches and worktrees use the same order. A
+  branch or worktree there also offers "Remove Worktree and Delete
+  <branch>…".
+
+### Fixed
+- A branch checked out in another worktree no longer offers "Checkout" in
+  the history's menu; git refuses that. Its worktree can be opened instead.
+
 ## [0.6.3] - 2026-11-16
 
 ### Fixed

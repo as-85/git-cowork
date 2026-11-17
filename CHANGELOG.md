@@ -6,6 +6,8 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-17
+
 ### Fixed
 - Tasks, reviews and comments keep header fields this version doesn't
   know when you edit them. A later version can add fields (for example the

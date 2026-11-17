@@ -6,6 +6,8 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-17
+
 ### Added
 - Create a release on GitHub, GitLab or Gitea/Forgejo: right-click a tag
   in the sidebar ("Create Release…"), a commit with a tag in the history

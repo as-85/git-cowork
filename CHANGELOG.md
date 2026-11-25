@@ -15,6 +15,11 @@ How to update: see [INSTALL.md](INSTALL.md#quick-install) (or [from source](INST
 - The workspace tree shows the branch each repository and worktree has checked
   out as a badge (the commit, for a detached HEAD). Turn it off in
   Settings › Workspaces › Show the current branch.
+- Stashes show in the history graph, as a dashed box with a tray just above
+  the commit they were made on, with their message, branch and date. Click
+  one for its files and Pop / Apply / Delete; right-click for the same and
+  to copy its name. One on a commit whose branch went on gets a lane of its
+  own, so the branch's line stays solid.
 
 ## [0.8.0] - 2026-11-17
 
